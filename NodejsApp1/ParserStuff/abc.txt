@@ -1,0 +1,47 @@
+[Header]
+Game=RACE 07
+Version=1.2.1.10
+TimeString=2013/07/02 20:42:56
+Aids=0,0,0,0,0,1,0,0,0
+
+[Race]
+RaceMode=5
+Scene=GameData\Locations\Imola_2007\2007_Imola.TRK
+AIDB=GameData\Locations\Imola_2007\2007_Imola.AIW
+Race Length=0.100
+Track Length=4920.2471
+
+[Slot000]
+Driver=woozie233
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=Alfa Romeo 75
+Team=Team Sweden
+Laps=0
+LapDistanceTravelled=4913.547363
+RaceTime=DNF
+Reason=0
+
+[Slot001]
+Driver=sijssy
+SteamUser=sijssy
+SteamId=28198799
+Vehicle=BMW E30
+Team=Team UK
+Laps=0
+LapDistanceTravelled=2268.201172
+RaceTime=DNF
+Reason=0
+
+[Slot002]
+Driver=kipke
+SteamUser=kipke4you
+SteamId=20797417
+Vehicle=BMW E30
+Team=Team Italy
+Laps=0
+LapDistanceTravelled=2558.078369
+RaceTime=DNF
+Reason=0
+
+[END]
