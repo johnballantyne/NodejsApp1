@@ -1,12 +1,19 @@
-﻿//var server = require("./server");
-//var router = require("./router");
+﻿var fs = require('fs');
+var express = require('express');
+var parse = require('./ParserStuff/parser');
 
-//server.start(router.route);
+var fileString = fs.readFileSync('bleh.txt', {encoding:'utf8'});
+var race = parse(fileString);
 
-var fs = require('fs');
-var ini = fs.readFileSync('abc.txt', {encoding:'utf8'}).split(/\r?\n/);
+var app = express();
 
-// do something with the ini...
-var parser = require("./ParserStuff/parser");
-parser.parse(ini);
-parser.SayHi();
+app.get('/racedata', function(req, res, next){
+    res.json(race);
+});
+
+app.get('/', function(req, res, next){
+    var html = "<body>Hello WORLD! This many people playing: "+race.Players.length+"</body>";
+    res.send(200, html);
+});
+
+app.listen(80);

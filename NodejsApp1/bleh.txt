@@ -1,0 +1,155 @@
+[Header]
+Game=RACE 07
+Version=1.2.1.10
+TimeString=2013/11/20 21:18:29
+Aids=0,0,1,0,0,1,1,1,1
+
+[Race]
+RaceMode=5
+Scene=GAMEDATA\LOCATIONS\Magny-Cours\2006_Magny_Cours.TRK
+AIDB=GAMEDATA\LOCATIONS\Magny-Cours\2006_Magny_Cours.AIW
+Race Length=0.100
+Track Length=4450.9355
+
+[Slot000]
+Driver=beyondxtream
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=Chevrolet Lacetti 2007
+Team=Maurer Motorsport
+Laps=0
+LapDistanceTravelled=4281.014648
+RaceTime=DNF
+Reason=0
+
+[Slot004]
+Driver=Jamppa
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=BMW 320i E46 2007
+Team=Russian Bears Motorsport
+QualTime=1:49.076
+Laps=0
+LapDistanceTravelled=2693.367188
+RaceTime=DNF
+Reason=0
+
+[Slot005]
+Driver=Arvis
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=SEAT Leon 2007
+Team=GR Asia
+Laps=1
+Lap=(0, -1.000, 2:12.804)
+LapDistanceTravelled=386.509277
+BestLap=2:12.804
+RaceTime=DNF
+Reason=0
+
+[Slot008]
+Driver=regulator11
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=SEAT Leon 2007
+Team=Exagon Engineering
+Laps=1
+Lap=(0, -1.000, 2:18.457)
+LapDistanceTravelled=591.916992
+BestLap=2:18.457
+RaceTime=DNF
+Reason=0
+
+[Slot003]
+Driver=sijssy
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=BMW 320si E90 2007
+Team=Wiechers-Sport
+QualTime=1:51.862
+Laps=3
+Lap=(0, -1.000, 2:08.877)
+Lap=(1, 104.621, 2:14.187)
+LapDistanceTravelled=4107.811523
+BestLap=2:08.877
+RaceTime=DNF
+Reason=0
+
+[Slot007]
+Driver=Diabolik
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=Honda Accord R 2007
+Team=TEMPLATE_TEAM
+Laps=5
+Lap=(0, -1.000, 2:04.738)
+Lap=(1, 104.621, 2:09.911)
+Lap=(2, 229.359, 1:53.950)
+Lap=(3, 359.270, 1:54.581)
+Lap=(4, 473.220, 1:54.281)
+LapDistanceTravelled=4335.611816
+BestLap=1:53.950
+RaceTime=0:09:57.460
+
+[Slot009]
+Driver=egono
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=BMW 320si E90 2007
+Team=BMW Team Italy-Spain
+Laps=5
+Lap=(0, -1.000, 2:11.583)
+Lap=(1, 104.621, 1:58.386)
+Lap=(2, 236.204, 1:56.810)
+Lap=(3, 354.591, 1:56.947)
+Lap=(4, 471.401, 1:58.375)
+LapDistanceTravelled=4355.629883
+BestLap=1:56.810
+RaceTime=0:10:02.101
+
+[Slot001]
+Driver=kipke
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=BMW 320si E90 2007
+Team=Proteam Motorsport
+QualTime=1:51.986
+Laps=5
+Lap=(0, -1.000, 2:12.210)
+Lap=(1, 104.621, 2:15.903)
+Lap=(2, 236.831, 2:01.695)
+Lap=(3, 372.735, 2:17.540)
+Lap=(4, 494.430, 2:07.692)
+LapDistanceTravelled=4288.048340
+BestLap=2:01.695
+RaceTime=0:10:55.041
+
+[Slot002]
+Driver=Gareth
+SteamUser=Unknown
+SteamId=Unknown
+Vehicle=Honda Accord R 2007
+Team=Golden Motors
+Laps=5
+Lap=(0, -1.000, 2:15.195)
+LapDistanceTravelled=4295.868652
+BestLap=2:15.195
+RaceTime=DQ
+
+[Slot006]
+Driver=dem
+SteamUser=dem_88
+SteamId=60468445
+Vehicle=Alfa Romeo 156 2007
+Team=N.Technology
+QualTime=1:55.358
+Laps=5
+Lap=(1, 104.621, 2:01.775)
+Lap=(2, 235.136, 2:02.343)
+Lap=(3, 356.911, 2:12.616)
+Lap=(4, 479.254, 2:07.850)
+LapDistanceTravelled=4328.049805
+BestLap=2:01.775
+RaceTime=0:10:35.099
+
+[END]
