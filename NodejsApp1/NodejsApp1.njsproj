@@ -32,9 +32,6 @@
     <Compile Include="index.js" />
     <Compile Include="ParserStuff\ftpserver.js" />
     <Compile Include="ParserStuff\parser.js" />
-    <Compile Include="ParserStuff\PrintData.js" />
-    <Compile Include="router.js" />
-    <Compile Include="server.js" />
     <Content Include="package.json" />
     <Compile Include="ParserStuff\abc.txt" />
     <Content Include="README.md" />

@@ -51,25 +51,25 @@ var server = net.createServer(function(c){
                     // http://en.wikipedia.org/wiki/List_of_FTP_server_return_codes
                     case 'USER': // Here's a username
                         //if (msg.param == 'theusername')
-                        c.write("331 Password required\r\n");
+                        c.write("331: Password required\r\n");
                         break;
                     case 'PASS': // Here's a password
                         //if (msg.param == 'thepassword')
-                        c.write("230 User logged in\r\n");
+                        c.write("230: User logged in\r\n");
                         break;
                     case 'PWD': // What is the present working directory?
-                        c.write("257 \"/\" is current directory.\r\n");
+                        c.write("257: \"/\" is current directory.\r\n");
                         break;
                     case 'TYPE': // Set TYPE
-                        c.write("200 Type set to "+msg.param+"\r\n");
+                        c.write("200: Type set to "+msg.param+"\r\n");
                         break;
                     case 'PASV': // Enter Passive mode?
                         PASV(c, function(pasv){
-                            c.write("227 Entering Passive Mode ("+pasv.address+").\r\n");
+                            c.write("227: Entering Passive Mode ("+pasv.address+").\r\n");
                         });
                         break;
                     default: // we don't understand the command
-                        c.write("502 Command not implemented\r\n");
+                        c.write("502: Command not implemented\r\n");
                         break;
                 }
             });
@@ -82,7 +82,7 @@ var server = net.createServer(function(c){
         console.log('client gone');
     });
     
-    c.write("220 FTP server ready\r\n");
+    c.write("220: FTP server ready\r\n");
     
 });
 
