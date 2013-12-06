@@ -1,4 +1,6 @@
 var net = require('net');
+var EventEmitter = require('events').EventEmitter;
+require('colors');
 
 var PASV = function(c, cb) {
     var server = net.createServer(function(c){
@@ -22,70 +24,133 @@ var PASV = function(c, cb) {
     });
 };
 
-var parseCmd = function(cmdStr){
-    var cmd = cmdStr.split(" ");
-    return {
-        cmd: cmd.shift(),
-        param: cmd.join(" ")
-    };
+var createControlLink = function(port, newClientCallback){
+
+    var server = net.createServer(function(socket){
+        
+        var client = new EventEmitter()
+          , readBuffer = ''
+          , paused = false
+          , dataLink = null
+          ;
+
+        // receive a command from the client if ready
+        client.receive = function(){
+            if (readBuffer.indexOf("\r\n") === -1 || paused) {
+                return null;
+            }
+            
+            var readSplit = readBuffer.split("\r\n");
+            var msg = readSplit.shift().split(" ");
+            readBuffer = readSplit.join("\r\n");
+            var command = {cmd:msg.shift(), param:msg.join(" ")};
+            console.log(('<<< '+command.cmd).red, command.param);
+            client.emit('command', command);
+        };
+        
+        // prevent any more commands being read from the control link for a while
+        client.pause = function(){
+            paused = true;
+            client.emit('paused');
+        };
+        // resume accepting commands on the control link
+        client.resume = function(){
+            paused = false;
+            client.emit('resume');
+        };
+        
+        // send a response to the client
+        client.send = function(code, text) {
+            var codeColour = 'white';
+            switch (code.toString().substr(0,1)) {
+                case '1': codeColour = 'lime'; break;
+                case '2': codeColour = 'green'; break;
+                case '3': codeColour = 'cyan'; break;
+                case '4': codeColour = 'yellow'; break;
+                case '5': codeColour = 'red'; break;
+            }
+            console.log('>>>'.cyan, code.toString()[codeColour], text);
+            socket.write(code + ": " + text + "\r\n");
+        };
+        
+        // add incoming data to the read buffer
+        socket.on('readable', function(){
+            // if command link is paused, don't read from the buffer
+            if (paused) return;
+            // else, read data from the buffer
+            var readData = socket.read();
+            if (readData === null) return;
+            readBuffer += readData.toString();
+            // try to parse buffer for a command
+            client.receive();
+        });
+        
+        // handle disconnects
+        socket.once('end', function(){
+            socket.removeAllListeners('readable');
+            console.log('!!!'.yellow, 'Client disconnected');
+            client.emit('disconnected');
+        });
+        
+        // ok, all ready to go
+        console.log('!!!'.yellow, 'Client connected');
+        newClientCallback && newClientCallback(client);
+    });
+
+    server.listen(port, function(){
+        console.log('!!!'.yellow, 'Listening on port ' + server.address().port);
+    });
+
 };
 
-var server = net.createServer(function(c){
-    
-    var readBuffer = '';
-    
-    c.on('readable', function(){
-        var readData = c.read();
-        if (readData === null) return;
-        readBuffer += readData.toString();
-        
-        if (readBuffer.indexOf("\r\n") >= 0) {
-            var readSplit = readBuffer.split("\r\n");
-            readBuffer = readSplit.pop();
-            
-            readSplit.map(parseCmd).forEach(function(msg){
-                console.log(msg);
-                switch (msg.cmd) {
-                    // useful info:
-                    // http://www.ietf.org/rfc/rfc959.txt
-                    // http://en.wikipedia.org/wiki/List_of_FTP_server_return_codes
-                    case 'USER': // Here's a username
-                        //if (msg.param == 'theusername')
-                        c.write("331: Password required\r\n");
-                        break;
-                    case 'PASS': // Here's a password
-                        //if (msg.param == 'thepassword')
-                        c.write("230: User logged in\r\n");
-                        break;
-                    case 'PWD': // What is the present working directory?
-                        c.write("257: \"/\" is current directory.\r\n");
-                        break;
-                    case 'TYPE': // Set TYPE
-                        c.write("200: Type set to "+msg.param+"\r\n");
-                        break;
-                    case 'PASV': // Enter Passive mode?
-                        PASV(c, function(pasv){
-                            c.write("227: Entering Passive Mode ("+pasv.address+").\r\n");
-                        });
-                        break;
-                    default: // we don't understand the command
-                        c.write("502: Command not implemented\r\n");
-                        break;
+createControlLink(21, function(client){
+    client.on('command', function(command){
+        switch (command.cmd) {
+            // useful info:
+            // http://www.ietf.org/rfc/rfc959.txt
+            // http://en.wikipedia.org/wiki/List_of_FTP_server_return_codes
+            case 'USER': // Here's a username
+                //if (msg.param == 'theusername')
+                client.send(331, "Password required");
+                break;
+            case 'PASS': // Here's a password
+                //if (msg.param == 'thepassword')
+                client.send(230, "User logged in");
+                break;
+            case 'PWD': // What is the present working directory?
+                client.send(257, "\"/\" is current directory");
+                break;
+            case 'TYPE': // Set TYPE
+                client.send(200, "Type set to "+command.param);
+                break;
+            case 'PASV': // Enter Passive mode?
+                client.pause();/*
+                PASV(client, function(pasv){
+                    paused = false;
+                    c.write("227: Entering Passive Mode ("+pasv.address+").\r\n");
+                    // pasv.onclient, set dataLink = 
+                });*/
+                break;
+            case 'NOOP': // No operation
+            case 'CLNT': // Client is trying to tell us what agent they're using
+            case 'QUIT': // Client is signing off
+                client.send(200, "That's fine, whatever");
+                break;
+            case 'LIST':
+            /*
+                if (!dataLink) {
+                    c.write("503: Must establish passive connection first\r\n");
+                    break;
                 }
-            });
-            
+                
+                c.write("125: Data connection open - starting transfer\r\n");
+                dataLink.write("test.txt\r\n");*/
+                break;
+            default: // we don't understand the command
+                client.send(502, "Command not implemented");
+                break;
         }
     });
-    
-    c.once('end', function(){
-        c.removeAllListeners('readable');
-        console.log('client gone');
-    });
-    
-    c.write("220: FTP server ready\r\n");
-    
-});
 
-server.listen(21, function(){
-    console.log('Listening on 21');
+    client.send(220, 'Control link ready');
 });
