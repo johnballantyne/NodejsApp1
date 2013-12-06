@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title></title>
 </head>
-<body>
+<body ng-controller="Race07Ctrl">
     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -33,6 +33,16 @@
             }
         }
 
+        $scope.raceModeMeaning = function (mode) {
+            if (mode == '5') {
+                return 'Race';
+            }
+            return 'NOT RACING!';
+        };
+
+        $scope.getRaceImage = function () {
+            $scope.Race.Scene.match();
+        };
     });
 
 
@@ -43,7 +53,7 @@
         }
 
     </style>
-    <table ng-controller="Race07Ctrl">
+    <table>
         <tr>
             <th>Name</th>
             <th>Best Lap</th>
@@ -56,7 +66,17 @@
             <td>{{player.Laps}}</td>
             <td>{{player.LapDistanceTravelled}}</td>
         </tr>
+        <tr ng-if="!Players.length">
+            <td colspan="4">Nobody playing!</td>
+        </tr>
     </table>
+
+    <div>
+        Race Mode: {{raceModeMeaning(Race.RaceMode)}}
+    </div>
+
+    <img ng-src="{{getRaceImg()}}" />
 
 </body>
 </html>
+<!-- http://docs.angularjs.org/api/ng.filter:date -->
