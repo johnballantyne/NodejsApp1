@@ -1,4 +1,5 @@
 var net = require('net');
+var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 require('colors');
 
@@ -17,7 +18,11 @@ var PASV = function(cb) {
     
     server.listen(function(){
         var a = server.address();
-
+        
+        if (a.address === '0.0.0.0') {
+            a.address = '127.0.0.1';
+        }
+        
         var address = a.address.split('.');
         address.push((a.port / 256) << 0);
         address.push(a.port % 256);
@@ -39,6 +44,13 @@ var createControlLink = function(port, newClientCallback){
 
         // receive a command from the client if ready
         client.receive = function(){
+            // if command link is paused, don't read from the buffer
+            if (paused) return;
+            // else, read data from the buffer
+            var readData = socket.read();
+            if (readData === null) return;
+            readBuffer += readData.toString();
+            
             if (readBuffer.indexOf("\r\n") === -1 || paused) {
                 return null;
             }
@@ -58,12 +70,18 @@ var createControlLink = function(port, newClientCallback){
         };
         // resume accepting commands on the control link
         client.resume = function(){
+            console.log('resuming', readBuffer);
             paused = false;
             client.emit('resume');
+            client.receive();
         };
         
         // send a response to the client
         client.send = function(code, text) {
+            if (!util.isArray(text)) {
+                text = [text];
+            }
+            
             var codeColour = 'white';
             switch (code.toString().substr(0,1)) {
                 case '1': codeColour = 'white'; break;
@@ -72,18 +90,16 @@ var createControlLink = function(port, newClientCallback){
                 case '4': codeColour = 'yellow'; break;
                 case '5': codeColour = 'red'; break;
             }
-            console.log('>>>'.cyan, code.toString()[codeColour], text);
-            socket.write(code + " " + text + "\r\n");
+            
+            while (text.length) {
+                var t = text.shift();
+                console.log('>>>'.cyan, code.toString()[codeColour] + (text.length?"-":" ") + t);
+                socket.write(code + (text.length?"-":" ") + t + "\r\n");
+            }
         };
         
         // add incoming data to the read buffer
         socket.on('readable', function(){
-            // if command link is paused, don't read from the buffer
-            if (paused) return;
-            // else, read data from the buffer
-            var readData = socket.read();
-            if (readData === null) return;
-            readBuffer += readData.toString();
             // try to parse buffer for a command
             client.receive();
         });
@@ -162,8 +178,8 @@ createControlLink(21, function(client){
                     break;
                 }
                 
-                client.send(125, "Starting transfer");
-                dataLink.write("/test.txt\r\n\r\n");
+                client.send(150, "Starting transfer");
+                dataLink.write("drwxr-xr-x   3 (?)      (?)          2048 Aug 23  2007 P25 Compact Series\r\n");
                 client.send(226, "Transfer complete");
                 break;
             case 'SIZE': // What size is this file?
@@ -172,11 +188,14 @@ createControlLink(21, function(client){
             case 'CWD': // Change working directory
                 client.send(250, "Sure, that's fine");
                 break;
+            case 'FEAT':
+                client.send(211, ["Features:\r\n NLST\r\n PASV", "End"]);
+                break;
             default: // we don't understand the command
                 client.send(502, "Command not implemented");
                 break;
         }
     });
 
-    client.send(220, 'FTP Control link ready');
+    client.send(220, ["Gareth's Node FTP server", "FTP Control link ready"]);
 });
