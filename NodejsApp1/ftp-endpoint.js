@@ -2,25 +2,28 @@ var net = require('net');
 var EventEmitter = require('events').EventEmitter;
 require('colors');
 
-var PASV = function(c, cb) {
-    var server = net.createServer(function(c){
+var PASV = function(cb) {
+    var pasv = new EventEmitter();
+
+    var server = net.createServer(function(socket){
         console.log('PASV connection received');
         
-        c.on("data", function(data){
+        pasv.emit('connect', socket);
+        
+        socket.on("data", function(data){
             console.log('PASVDATA', data);
         });
     });
     
     server.listen(function(){
         var a = server.address();
-        
-        var address = c.localAddress.split('.');
+
+        var address = a.address.split('.');
         address.push((a.port / 256) << 0);
         address.push(a.port % 256);
         
-        return cb&&cb({
-            address: address
-        });
+        pasv.address = address;
+        cb&&cb(null, pasv);
     });
 };
 
@@ -63,14 +66,14 @@ var createControlLink = function(port, newClientCallback){
         client.send = function(code, text) {
             var codeColour = 'white';
             switch (code.toString().substr(0,1)) {
-                case '1': codeColour = 'lime'; break;
+                case '1': codeColour = 'white'; break;
                 case '2': codeColour = 'green'; break;
                 case '3': codeColour = 'cyan'; break;
                 case '4': codeColour = 'yellow'; break;
                 case '5': codeColour = 'red'; break;
             }
             console.log('>>>'.cyan, code.toString()[codeColour], text);
-            socket.write(code + ": " + text + "\r\n");
+            socket.write(code + " " + text + "\r\n");
         };
         
         // add incoming data to the read buffer
@@ -85,12 +88,19 @@ var createControlLink = function(port, newClientCallback){
             client.receive();
         });
         
-        // handle disconnects
-        socket.once('end', function(){
+        var disconnect = function(){
             socket.removeAllListeners('readable');
+            socket.destroy();
             console.log('!!!'.yellow, 'Client disconnected');
             client.emit('disconnected');
-        });
+        };
+        
+        // handle disconnects
+        socket.once('close', disconnect);
+        socket.once('end', disconnect);
+        socket.once('error', disconnect);
+        socket.once('timeout', disconnect);
+        socket.setTimeout(1000 * 120);
         
         // ok, all ready to go
         console.log('!!!'.yellow, 'Client connected');
@@ -104,6 +114,8 @@ var createControlLink = function(port, newClientCallback){
 };
 
 createControlLink(21, function(client){
+    var dataLink = null;
+
     client.on('command', function(command){
         switch (command.cmd) {
             // useful info:
@@ -124,12 +136,20 @@ createControlLink(21, function(client){
                 client.send(200, "Type set to "+command.param);
                 break;
             case 'PASV': // Enter Passive mode?
-                client.pause();/*
-                PASV(client, function(pasv){
-                    paused = false;
-                    c.write("227: Entering Passive Mode ("+pasv.address+").\r\n");
-                    // pasv.onclient, set dataLink = 
-                });*/
+                client.pause();
+                PASV(function(err, pasv){
+                    if (err) {
+                        client.send(421, "Couldn't create data link");
+                        client.resume();
+                    }
+                    
+                    pasv.once('connect', function(dlClient){
+                        dataLink = dlClient;
+                        client.resume();
+                    });
+                    
+                    client.send(227, "Entering Passive Mode ("+pasv.address+").");
+                });
                 break;
             case 'NOOP': // No operation
             case 'CLNT': // Client is trying to tell us what agent they're using
@@ -137,14 +157,20 @@ createControlLink(21, function(client){
                 client.send(200, "That's fine, whatever");
                 break;
             case 'LIST':
-            /*
                 if (!dataLink) {
-                    c.write("503: Must establish passive connection first\r\n");
+                    client.send(503, "Must establish data link first");
                     break;
                 }
                 
-                c.write("125: Data connection open - starting transfer\r\n");
-                dataLink.write("test.txt\r\n");*/
+                client.send(125, "Starting transfer");
+                dataLink.write("/test.txt\r\n\r\n");
+                client.send(226, "Transfer complete");
+                break;
+            case 'SIZE': // What size is this file?
+                client.send(213, 0);
+                break;
+            case 'CWD': // Change working directory
+                client.send(250, "Sure, that's fine");
                 break;
             default: // we don't understand the command
                 client.send(502, "Command not implemented");
@@ -152,5 +178,5 @@ createControlLink(21, function(client){
         }
     });
 
-    client.send(220, 'Control link ready');
+    client.send(220, 'FTP Control link ready');
 });

@@ -8,6 +8,7 @@
     "email": ""
   },
   "dependencies": {
-    "express.io": "~1.1.13"
+    "express.io": "~1.1.13",
+    "colors": "~0.6.2"
   }
 }
