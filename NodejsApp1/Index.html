@@ -56,10 +56,7 @@
             }
         }
 
-        $scope.raceModeMeaning = function (mode) {
-            switch (mode) {
-
-            }
+        $scope.raceModeMeaning = function (mode) {            
             if (mode == '5') {
                 return 'Race';
             }
@@ -67,7 +64,11 @@
         };
 
         $scope.getRaceImg = function () {            
-            //$scope.Race.Scene.match();
+            var s = $scope.Race.Scene.split(/\\/);
+            var track = s[s.length - 1];
+            var track = track.substring(0, track.length - 4);
+            console.log(track);
+            return track.concat('.jpg');
         };
     });
 
