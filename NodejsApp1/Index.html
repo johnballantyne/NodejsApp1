@@ -57,14 +57,17 @@
         }
 
         $scope.raceModeMeaning = function (mode) {
+            switch (mode) {
+
+            }
             if (mode == '5') {
                 return 'Race';
             }
             return 'NOT RACING!';
         };
 
-        $scope.getRaceImage = function () {
-            $scope.Race.Scene.match();
+        $scope.getRaceImg = function () {            
+            //$scope.Race.Scene.match();
         };
     });
 
@@ -76,6 +79,10 @@
         }
 
     </style>
+    <img ng-src="{{getRaceImg()}}" />    
+    <div>
+        Race Mode: {{raceModeMeaning(Race.RaceMode)}}
+    </div>
     <table>
         <tr>
             <th>Position</th>
@@ -95,13 +102,6 @@
             <td colspan="4">Nobody playing!</td>
         </tr>
     </table>
-
-    <div>
-        Race Mode: {{raceModeMeaning(Race.RaceMode)}}
-    </div>
-
-    <img ng-src="{{getRaceImg()}}" />
-
 </body>
 </html>
 <!-- http://docs.angularjs.org/api/ng.filter:date -->
