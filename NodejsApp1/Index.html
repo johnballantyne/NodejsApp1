@@ -20,9 +20,32 @@
             $scope.$apply();
         });
 
-        $scope.displayTime = function (rawTime) {
-            return rawTime;
+        $scope.displayTime = function (x) {
+            if (!x)
+                return '-';
+
+            var rem = div(x, 1000 * 60 * 60);
+            var h = rem.quot;
+            rem = div(rem.rem, 1000 * 60);
+            var m = rem.quot;
+            rem = div(rem.rem, 1000);
+            var s = rem.quot;
+            var ms = rem.rem;
+            
+            if(h!= 0)
+                return h + ':' + pad(m, 2) + ':' + pad(s, 2) + '.' + pad(ms, 3);            
+            return m + ':' + pad(s, 2) + '.' + pad(ms, 3);
         };
+
+        function pad(n,len) {
+            return 0..toFixed(len).slice(2, -n.toString().length) + n.toString();
+        }
+        function div (x,y) {            
+            var bleh = { rem: {}, quot: {} };
+            bleh.rem = x % y;
+            bleh.quot = (x - bleh.rem) / y;
+            return bleh;            
+        }
 
         $scope.leader = function (player) {
             if ($scope.Race.RaceMode == '5') {
@@ -55,12 +78,14 @@
     </style>
     <table>
         <tr>
+            <th>Position</th>
             <th>Name</th>
             <th>Best Lap</th>
             <th>Laps</th>
             <th>DT</th>
         </tr>
         <tr ng-repeat="player in Players | orderBy:leader:Race.RaceMode!='1'">
+            <td>{{$index+1}}</td>
             <td>{{player.Driver}}</td>
             <td>{{displayTime(player.BestLap)}}</td>
             <td>{{player.Laps}}</td>
