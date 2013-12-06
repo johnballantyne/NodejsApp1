@@ -1,16 +1,62 @@
 ﻿<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html ng-app="race07" lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title></title>
 </head>
 <body>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 <script>
     var socket = io.connect('http://localhost:8888');    
-    socket.on('race07 data', function (data) {
-        document.body.innerText = JSON.stringify(data);
-    });    
+    
+
+    var race07app = angular.module('race07', []);
+
+    race07app.controller('Race07Ctrl', function ($scope) {
+
+        socket.on('race07 data', function (data) {
+            angular.extend($scope, data);
+            $scope.$apply();
+        });
+
+        $scope.displayTime = function (rawTime) {
+            return rawTime;
+        };
+
+        $scope.leader = function (player) {
+            if ($scope.Race.RaceMode == '5') {
+                return (player.Laps * $scope.Race['Track Length']) + player.LapDistanceTravelled;
+            }
+            else {
+                return player.BestLap;
+            }
+        }
+
+    });
+
+
 </script>
+    <style>
+        td {
+            border: 1px solid black;
+        }
+
+    </style>
+    <table ng-controller="Race07Ctrl">
+        <tr>
+            <th>Name</th>
+            <th>Best Lap</th>
+            <th>Laps</th>
+            <th>DT</th>
+        </tr>
+        <tr ng-repeat="player in Players | orderBy:leader:Race.RaceMode!='1'">
+            <td>{{player.Driver}}</td>
+            <td>{{displayTime(player.BestLap)}}</td>
+            <td>{{player.Laps}}</td>
+            <td>{{player.LapDistanceTravelled}}</td>
+        </tr>
+    </table>
+
 </body>
 </html>
