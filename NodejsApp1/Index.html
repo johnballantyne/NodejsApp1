@@ -48,7 +48,7 @@
         }
 
         $scope.leader = function (player) {
-            if ($scope.Race.Origin.RaceType == 'Race') {
+            if ($scope.Origin.raceType == 'Race') {
                 return (player.Laps * $scope.Race['Track Length']) + player.LapDistanceTravelled;
             }
             else {
@@ -74,7 +74,7 @@
     </style>
     <img ng-src="{{getRaceImg()}}" />    
     <div>
-        Race Mode: {{$scope.Race.Origin.RaceType}}
+        Race Mode: {{Origin.raceType}}
     </div>
     <table>
         <tr>
@@ -83,6 +83,7 @@
             <th>Laps</th>
             <th>Best Lap</th>
             <th>Last Lap</th>
+            <th>% through</th>
         </tr>
         <tr ng-repeat="player in Players | orderBy:leader:Race.RaceMode!='1'">
             <td>{{$index+1}}</td>
@@ -90,6 +91,7 @@
             <td>{{player.Laps}}</td>
             <td>{{displayTime(player.BestLap)}}</td>            
             <td>{{displayTime(player.Lap[player.Lap.Length-1])}}</td>
+            <td>{{(player.LapDistanceTravelled/Race['Track Length']) * 100 | number:1}}%</td>
         </tr>
         <tr ng-if="!Players.length">
             <td colspan="4">Nobody playing!</td>
