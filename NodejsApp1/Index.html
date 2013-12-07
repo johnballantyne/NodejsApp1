@@ -63,12 +63,12 @@
             return 'NOT RACING!';
         };
 
-        $scope.getRaceImg = function () {            
+        $scope.getRaceImg = function () {
+            if (!$scope.Race) return;
             var s = $scope.Race.Scene.split(/\\/);
             var track = s[s.length - 1];
             var track = track.substring(0, track.length - 4);
-            console.log(track);
-            return track.concat('.jpg');
+            return "/Assets/png/" + track.concat('.png');
         };
     });
 
