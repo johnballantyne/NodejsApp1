@@ -6,9 +6,9 @@ var parseTime = function(timeString) {
     return (parseInt(timeParts[2] || 0) * 60 * 60 * 1000) + (parseInt(timeParts[3]) * 60 * 1000) + (parseInt(timeParts[4]) * 1000) + parseInt(timeParts[5]);
 };
 
-module.exports = function(fileString) {
+module.exports = {parse: function(dataString) {
 
-    var groups = fileString.split(/\r?\n\r?\n/);
+    var groups = dataString.split(/\r?\n\r?\n/);
 
     var race = {
         Header: {},
@@ -64,4 +64,4 @@ module.exports = function(fileString) {
     });
 
     return race;
-};
+}};

@@ -10,7 +10,7 @@ var PASV = function(options, cb) {
         localAddress    : '127.0.0.1',
         remoteAddress   : '0.0.0.0',
         transferType    : 'I',
-        writeTo         : null  // this can be a writable stream, like a file stream.
+//        writeTo         : null  // this can be a writable stream, like a file stream.
                                 // if empty, will emit "data" event containing in-memory buffer
     }, options || {});
     
@@ -18,10 +18,11 @@ var PASV = function(options, cb) {
     
     // if we specify a write stream before a client connects to the PASV port,
     // we should be able to change the data destination.
+    /*
     pasv.pipe = function(stream){
         return options.writeTo = stream;
     };
-
+*/
     var establishingTimeout;
     
     var server = net.createServer(function(socket){
@@ -37,8 +38,9 @@ var PASV = function(options, cb) {
         server.close();
         clearTimeout(establishingTimeout);
         
+        pasv.socket = socket;
         pasv.emit('connect', socket);
-        
+        /*
         if (options.writeTo) {
             // pipe data directly into our writable stream
             socket.pipe(options.writeTo);
@@ -60,7 +62,7 @@ var PASV = function(options, cb) {
                 }
             });
         }
-        
+        */
         socket.once('close', function(){
             pasv.emit('close');
         });
@@ -96,7 +98,25 @@ var PASV = function(options, cb) {
     });
 };
 
-var createControlLink = function(port, newClientCallback){
+var createControlLink = function(options, newClientCallback){
+
+    options = _.extend({
+        port    : 21,
+        debug   : false
+    }, options || {});
+    
+    var log = function(/*party, msgN, ...*/){
+        if (!options.debug) return;
+        var args = _.toArray(arguments);
+        var lead = '';
+        switch (args.shift()) {
+            case 0: lead = '!!!'.yellow; break;
+            case 1: lead = '>>>'.cyan; break;
+            case 2: lead = '<<<'.red; break;
+        }
+        args.unshift(lead);
+        console.log.apply(console, args);
+    };
 
     var server = net.createServer(function(socket){
         
@@ -125,7 +145,7 @@ var createControlLink = function(port, newClientCallback){
             var msg = readSplit.shift().split(" ");
             readBuffer = readSplit.join("\r\n");
             var command = {cmd:msg.shift(), param:msg.join(" ")};
-            console.log(('<<< '+command.cmd).red, command.param);
+            log(2, command.cmd.red, command.param);
             client.emit('command', command);
         };
         
@@ -149,7 +169,7 @@ var createControlLink = function(port, newClientCallback){
             
             var codeColour = 'white';
             switch (code.toString().substr(0,1)) {
-                case '1': codeColour = 'white'; break;
+                case '1': codeColour = 'cyan'; break;
                 case '2': codeColour = 'green'; break;
                 case '3': codeColour = 'cyan'; break;
                 case '4': codeColour = 'yellow'; break;
@@ -158,7 +178,7 @@ var createControlLink = function(port, newClientCallback){
             
             while (text.length) {
                 var t = text.shift();
-                console.log('>>>'.cyan, code.toString()[codeColour] + (text.length?"-":" ") + t);
+                log(1, code.toString()[codeColour] + (text.length?"-":" ") + t);
                 socket.write(code + (text.length?"-":" ") + t + "\r\n");
             }
         };
@@ -169,12 +189,12 @@ var createControlLink = function(port, newClientCallback){
             client.receive();
         });
         
-        var disconnect = function(){
+        var disconnect = _.once(function(){
             socket.removeAllListeners('readable');
             socket.destroy();
-            console.log('!!!'.yellow, 'Client disconnected');
+            log(0, 'Client disconnected');
             client.emit('disconnected');
-        };
+        });
         
         // handle disconnects
         socket.once('close', disconnect);
@@ -184,21 +204,26 @@ var createControlLink = function(port, newClientCallback){
         socket.setTimeout(1000 * 120);
         
         // ok, all ready to go
-        console.log('!!!'.yellow, 'Client connected');
+        log(0, 'Client connected');
         newClientCallback && newClientCallback(client);
     });
 
-    server.listen(port, function(){
-        console.log('!!!'.yellow, 'Listening on port ' + server.address().port);
+    server.listen(options.port, function(){
+        log(0, 'Listening on port ' + options.port);
     });
 
 };
 
-var VirtualFTPServer = function(serverWelcome, listenPort, options) {
+var VirtualFTPServer = function(serverWelcome, options) {
+
+    options = _.extend({
+        port    : 21,
+        debug   : false
+    }, options || {});
 
     var vftp = this;
 
-    createControlLink(listenPort || 21, function(client){
+    createControlLink(options, function(client){
         var dataLink        = null;
         var transferType    = "L8";
         var authedUser      = null; // user name authenticated by system
@@ -267,6 +292,7 @@ var VirtualFTPServer = function(serverWelcome, listenPort, options) {
                 case 'QUIT': // Client is signing off
                     client.send(200, "That's fine, whatever");
                     break;
+                    /*
                 case 'LIST':
                     if (!authedUser) return client.send(530, "Not authorised");
                     if (!dataLink) {
@@ -275,9 +301,10 @@ var VirtualFTPServer = function(serverWelcome, listenPort, options) {
                     }
                     
                     client.send(150, "Starting transfer");
-                    dataLink.socket.end("drwxr-xr-x   3 (?)      (?)          2048 Aug 23  2007 P25 Compact Series\r\n");
+                    dataLink.socket.end("");
                     client.send(226, "Transfer complete");
                     break;
+                    */
                 case 'SIZE': // What size is this file?
                     if (!authedUser) return client.send(530, "Not authorised");
                     client.send(213, 0);
@@ -300,10 +327,13 @@ var VirtualFTPServer = function(serverWelcome, listenPort, options) {
                     }
                     
                     client.send(150, "Start transferring");
-                    dataLink.once('data', function(data) {
-                        console.log('PASV received: ', data);
+                    vftp.emit('stor', authedUser, command.param, dataLink.socket, _.once(function(err){
+                        if (err) {
+                            dataLink.socket.end();
+                            return client.send(426, "Error receiving file");
+                        }
                         client.send(226, "Transfer complete");
-                    });
+                    }));
                     break;
                 case 'DELE': // Client wants to delete a file
                     client.send(250, "Deleted file");
@@ -319,13 +349,5 @@ var VirtualFTPServer = function(serverWelcome, listenPort, options) {
 
 };
 VirtualFTPServer.prototype.__proto__ = EventEmitter.prototype; // inherit from EventEmitter
-    
 
-var ftp = new VirtualFTPServer("Race07 Live-FTP Endpoint", 21, {debug: true});
-ftp.on('auth', function(username, password, cb){
-    console.log('u/p:', username, password);
-    return cb&&cb();
-});
-ftp.on('stor', function(filename, action){
-
-});
+module.exports = VirtualFTPServer;
