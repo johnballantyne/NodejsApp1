@@ -48,26 +48,18 @@
         }
 
         $scope.leader = function (player) {
-            if ($scope.Race.RaceMode == '5') {
+            if ($scope.Race.Origin.RaceType == 'Race') {
                 return (player.Laps * $scope.Race['Track Length']) + player.LapDistanceTravelled;
             }
             else {
                 return player.BestLap;
             }
-        }
-
-        $scope.raceModeMeaning = function (mode) {            
-            if (mode == '5') {
-                return 'Race';
-            }
-            return 'NOT RACING!';
-        };
+        }        
 
         $scope.getRaceImg = function () {
             if (!$scope.Race) return;
-            var s = $scope.Race.Scene.split(/\\/);
-            var track = s[s.length - 1];
-            var track = track.substring(0, track.length - 4);
+            var s = $scope.Race.Scene.split(/[\\\.]/);
+            var track = s[s.length - 2];            
             return "/Assets/png/" + track.concat('.png');
         };
     });
@@ -82,22 +74,22 @@
     </style>
     <img ng-src="{{getRaceImg()}}" />    
     <div>
-        Race Mode: {{raceModeMeaning(Race.RaceMode)}}
+        Race Mode: {{$scope.Race.Origin.RaceType}}
     </div>
     <table>
         <tr>
             <th>Position</th>
-            <th>Name</th>
-            <th>Best Lap</th>
+            <th>Driver</th>
             <th>Laps</th>
-            <th>DT</th>
+            <th>Best Lap</th>
+            <th>Last Lap</th>
         </tr>
         <tr ng-repeat="player in Players | orderBy:leader:Race.RaceMode!='1'">
             <td>{{$index+1}}</td>
             <td>{{player.Driver}}</td>
-            <td>{{displayTime(player.BestLap)}}</td>
             <td>{{player.Laps}}</td>
-            <td>{{player.LapDistanceTravelled}}</td>
+            <td>{{displayTime(player.BestLap)}}</td>            
+            <td>{{displayTime(player.Lap[player.Lap.Length-1])}}</td>
         </tr>
         <tr ng-if="!Players.length">
             <td colspan="4">Nobody playing!</td>
