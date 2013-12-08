@@ -67,36 +67,65 @@
 
 </script>
     <style>
-        td {
-            border: 1px solid black;
+        #container {
+            margin-left:auto;
+            margin-right:auto;
+            width: 700px;            
         }
+        #imgDiv {
+            margin-left:auto;
+            margin-right:auto;
+            width: 609px; 
+        }
+        table {
+            border-collapse:collapse;  
+            width: 609px;      
+            border:hidden;                            
+        }
+        td, th {
+            background-color: rgba(255,255,255,0.5);            
+            color: #fff;      
+        }
+        td {
+            word-break: break-word;
+        }
+        tr:nth-child(odd) { background-color:#3a4fce; }
+        tr:nth-child(even){ background-color:#191616; }
+
+
 
     </style>
-    <img ng-src="{{getRaceImg()}}" />    
-    <div>
-        Race Mode: {{Origin.raceType}}
+    <div id="container">
+        <div id="imgDiv">
+            <img ng-src="{{getRaceImg()}}" />    
+        </div>
+        <div>
+            Currenty in a {{Origin.raceType}} session
+        </div>
+        <table>
+            <tr>
+                <th>Position</th>
+                <th>Driver</th>
+                <th>Car Model</th>
+                <th>Laps</th>
+                <th>Best Lap</th>
+                <th>Last Lap</th>
+                <th>% through</th>
+            </tr>
+            <tr ng-repeat="player in Players | orderBy:leader:Race.RaceMode!='1'">
+                <td>{{$index+1}}</td>
+                <td>{{player.Driver}}</td>
+                <td>{{player.Vehicle}}</td>
+                <td>{{player.Laps}}</td>
+                <td>{{displayTime(player.BestLap)}}</td>            
+                <td>{{displayTime(player.Lap[player.Lap.length-1])}}</td>
+                <td>{{(player.LapDistanceTravelled/Race['Track Length']) * 100 | number:1}}%</td>
+            </tr>
+            <tr ng-if="!Players.length">
+                <td colspan="7">Nobody playing!</td>
+            </tr>
+        </table>
     </div>
-    <table>
-        <tr>
-            <th>Position</th>
-            <th>Driver</th>
-            <th>Laps</th>
-            <th>Best Lap</th>
-            <th>Last Lap</th>
-            <th>% through</th>
-        </tr>
-        <tr ng-repeat="player in Players | orderBy:leader:Race.RaceMode!='1'">
-            <td>{{$index+1}}</td>
-            <td>{{player.Driver}}</td>
-            <td>{{player.Laps}}</td>
-            <td>{{displayTime(player.BestLap)}}</td>            
-            <td>{{displayTime(player.Lap[player.Lap.length-1])}}</td>
-            <td>{{(player.LapDistanceTravelled/Race['Track Length']) * 100 | number:1}}%</td>
-        </tr>
-        <tr ng-if="!Players.length">
-            <td colspan="4">Nobody playing!</td>
-        </tr>
-    </table>
 </body>
 </html>
 <!-- http://docs.angularjs.org/api/ng.filter:date -->
