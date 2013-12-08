@@ -90,7 +90,7 @@
             <td>{{player.Driver}}</td>
             <td>{{player.Laps}}</td>
             <td>{{displayTime(player.BestLap)}}</td>            
-            <td>{{displayTime(player.Lap[player.Lap.Length-1])}}</td>
+            <td>{{displayTime(player.Lap[player.Lap.length-1])}}</td>
             <td>{{(player.LapDistanceTravelled/Race['Track Length']) * 100 | number:1}}%</td>
         </tr>
         <tr ng-if="!Players.length">
