@@ -19,7 +19,7 @@ raceFTP.on('liveUpdate', function(data){
     //console.log('liveUpdate', data);
     // data will also contain:
     // username, raceId?, raceType, raceNumber, 
-    if(data.End)
+    //if(data.End)
         app.io.sockets.in('live-' + data.Origin.username).emit('liveUpdate', data);
 });
 /*

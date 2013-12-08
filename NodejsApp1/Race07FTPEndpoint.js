@@ -22,7 +22,7 @@ var Race07FTPEndpoint = function(options){
     });
     ftp.on('stor', function(username, filename, socketStream, done){
         
-        var parseable = filename.match(/^(.*)_(\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2})_(Live_)?([a-z]+)(\d+)\.txt$/i);
+        var parseable = filename.match(/^(.*)_(\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2})_(Live_)?([a-z]+)(\d+)?\.txt$/i);
         if (parseable) {
             // read stream and emit event
             socketStream.pipe(concat(function(data){
