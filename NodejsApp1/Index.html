@@ -57,14 +57,13 @@
             }
         }
 
-        $Scope.getCurrentTrack =function() {
+        $scope.getCurrentTrack = function() {
             if (!$scope.Race) return;
             var s = $scope.Race.Scene.split(/[\\\.]/);
             return s[s.length - 2];
         }
 
-        $scope.getRaceImg = function () {
-                       
+        $scope.getRaceImg = function () {                       
             return "/Assets/png/" + getCurrentTrack().concat('.png');
         };
     });
