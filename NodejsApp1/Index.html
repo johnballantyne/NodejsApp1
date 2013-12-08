@@ -63,8 +63,11 @@
             return s[s.length - 2];
         }
 
-        $scope.getRaceImg = function () {                       
-            return "/Assets/png/" + $scope.getCurrentTrack().concat('.png');
+        $scope.getRaceImg = function () {
+            var s = $scope.getCurrentTrack();
+            if(s)
+                return "/Assets/png/" + s.concat('.png');
+            return;
         };
     });
 
