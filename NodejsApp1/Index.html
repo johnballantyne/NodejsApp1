@@ -2,12 +2,13 @@
 <html ng-app="race07" lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title></title>
+    <link href='http://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
+    <title>Race 0-Awesome!</title>
 </head>
 <body ng-controller="Race07Ctrl">
     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-<script>
+    <script>
     var socket = io.connect();
     
     var race07app = angular.module('race07', []);
@@ -49,82 +50,154 @@
 
         $scope.leader = function (player) {
             if ($scope.Origin.raceType == 'Race') {
-                return (player.Laps * $scope.Race['Track Length']) + player.LapDistanceTravelled;
+                return (player.Laps * Race['Track Length']) + player.LapDistanceTravelled;
             }
             else {
                 return player.BestLap;
             }
-        }        
+        }
 
-        $scope.getRaceImg = function () {
+        $Scope.getCurrentTrack =function() {
             if (!$scope.Race) return;
             var s = $scope.Race.Scene.split(/[\\\.]/);
-            var track = s[s.length - 2];            
-            return "/Assets/png/" + track.concat('.png');
+            return s[s.length - 2];
+        }
+
+        $scope.getRaceImg = function () {
+                       
+            return "/Assets/png/" + getCurrentTrack().concat('.png');
         };
     });
 
 
 </script>
     <style>
-        #container {
+        body, html {
+            height:100%;
+        }
+        #header {
+            background-color: white;                
+            color:#001dff;             
+            text-align: right;
+            padding: 10px;            
+            float:left;
+
+            -webkit-border-top-right-radius: 10px;
+            -webkit-border-bottom-right-radius: 10px;
+            -moz-border-radius-topright: 10px;
+            -moz-border-radius-bottomright: 10px;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            
+            -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+            -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+            box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);    
+        }
+        #container {    
+            font-family: 'Orbitron', sans-serif;        
+            padding:20px;
+            margin-top: 10px;
             margin-left:auto;
             margin-right:auto;
-            width: 700px;            
+            width: 865px; 
+            height: 100%;
+            background-color: #163b8b;    
+            
+            -webkit-border-top-right-radius: 10px;
+            -moz-border-radius-topright: 10px;
+            border-top-right-radius: 10px;      
+            
+            -webkit-box-shadow: 10px 5px 5px 0px rgba(0,0,0,0.75);
+            -moz-box-shadow: 10px 5px 5px 0px rgba(0,0,0,0.75);
+            box-shadow: 10px 5px 5px 0px rgba(0,0,0,0.75);                
         }
-        #imgDiv {
-            margin-left:auto;
-            margin-right:auto;
-            width: 609px; 
+        #tableContainer {
+            float:right;         
         }
-        table {
-            border-collapse:collapse;  
-            width: 609px;      
-            border:hidden;                            
+        #imgDiv {            
+            background-color: white;                             
+            padding:5px;
+
+            -webkit-border-top-right-radius: 10px;
+            -webkit-border-bottom-right-radius: 10px;
+            -moz-border-radius-topright: 10px;
+            -moz-border-radius-bottomright: 10px;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+
+            -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+            -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+            box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
         }
-        td, th {
-            background-color: rgba(255,255,255,0.5);            
-            color: #fff;      
+        #curSession {
+            font-weight:bold;
+            color: #ce0f0f;                
+        }
+        table {            
+            width: 619px;  
+            border:hidden;  
+            border-spacing: 0;          
         }
         td {
+            text-align: right;
             word-break: break-word;
         }
-        tr:nth-child(odd) { background-color:#3a4fce; }
-        tr:nth-child(even){ background-color:#191616; }
-
-
-
+        tr:nth-child(odd) { background-color:white;
+                            color: #ce0f0f;
+        }
+        tr:nth-child(even){ background-color:#163b8b;
+                            color: #ce0f0f;
+        }
+        th:last-child {            
+            -webkit-border-top-right-radius: 10px;            
+            -moz-border-radius-topright: 10px;            
+            border-top-right-radius: 10px;           
+        }
+        td:last-child {            
+            -webkit-border-bottom-right-radius: 10px;            
+            -moz-border-radius-bottomright: 10px;           
+            border-bottom-right-radius: 10px;
+        }
     </style>
+
     <div id="container">
-        <div id="imgDiv">
-            <img ng-src="{{getRaceImg()}}" />    
+        <div id="header"> 
+            <img src="race-o-awesome.jpg" width="200" />
         </div>
-        <div>
-            Currenty in a {{Origin.raceType}} session
+        <div id="tableContainer">
+            <div id="imgDiv">
+                <img src="Assets/png/2006_Brands_Hatch.png" />
+                <img ng-src="{{getRaceImg()}}" />    
+            </div>
+            <div>
+                <p id="curSession">
+                    Currently {{Origin.raceType}}ing on {{getCurrentTrack()}}                    
+                </p>
+            </div>
+            <table>
+                <tr>
+                    <th>Pos.</th>
+                    <th>Driver</th>
+                    <th>Car Model</th>
+                    <th>Laps</th>
+                    <th>Best Lap</th>
+                    <th>Last Lap</th>
+                    <th>% through</th>
+                </tr>
+                <tr ng-repeat="player in Players | orderBy:leader:Race.RaceMode!='1'">
+                    <td>{{$index+1}}</td>
+                    <td>{{player.Driver}}</td>
+                    <td>{{player.Vehicle}}</td>
+                    <td>{{player.Laps}}</td>
+                    <td>{{displayTime(player.BestLap)}}</td>            
+                    <td>{{displayTime(player.Lap[player.Lap.length-1])}}</td>
+                    <td>{{(player.LapDistanceTravelled/Race['Track Length']) * 100 | number:1}}%</td>
+                </tr>
+                <tr ng-if="!Players.length">
+                    <td colspan="7" style="text-align:center">Nobody playing!</td>
+                </tr>
+            </table>
         </div>
-        <table>
-            <tr>
-                <th>Position</th>
-                <th>Driver</th>
-                <th>Car Model</th>
-                <th>Laps</th>
-                <th>Best Lap</th>
-                <th>Last Lap</th>
-                <th>% through</th>
-            </tr>
-            <tr ng-repeat="player in Players | orderBy:leader:Race.RaceMode!='1'">
-                <td>{{$index+1}}</td>
-                <td>{{player.Driver}}</td>
-                <td>{{player.Vehicle}}</td>
-                <td>{{player.Laps}}</td>
-                <td>{{displayTime(player.BestLap)}}</td>            
-                <td>{{displayTime(player.Lap[player.Lap.length-1])}}</td>
-                <td>{{(player.LapDistanceTravelled/Race['Track Length']) * 100 | number:1}}%</td>
-            </tr>
-            <tr ng-if="!Players.length">
-                <td colspan="7">Nobody playing!</td>
-            </tr>
-        </table>
     </div>
 </body>
 </html>
