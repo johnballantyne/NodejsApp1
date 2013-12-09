@@ -50,7 +50,7 @@
 
         $scope.leader = function (player) {
             if ($scope.Origin.raceType == 'Race') {
-                return (player.Laps * Race['Track Length']) + player.LapDistanceTravelled;
+                return (player.Laps * $scope.Race['Track Length']) + player.LapDistanceTravelled;
             }
             else {
                 return player.BestLap;
@@ -200,7 +200,7 @@
                     <th>Last Lap</th>
                     <th>% through</th>
                 </tr>
-                <tr ng-repeat="player in Players | orderBy:leader:Race.RaceMode!='1'">
+                <tr ng-repeat="player in Players | orderBy:leader:Origin.raceType!='Qualify'">
                     <td>{{$index+1}}</td>
                     <td>{{player.Driver}}</td>
                     <td>{{player.Vehicle}}</td>
