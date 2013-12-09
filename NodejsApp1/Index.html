@@ -69,6 +69,12 @@
                 return "/Assets/png/" + s.concat('.png');
             return;
         };
+        $scope.getCurSession= function() {
+            if (!$scope.Origin) {
+                return 'Not currently in a session :-(';
+            }
+            return 'Currently' + $scope.Origin.raceType + 'ing on' + $scope.getCurrentTrack();
+        }
     });
 
 
@@ -101,7 +107,7 @@
             margin-top: 10px;
             margin-left:auto;
             margin-right:auto;
-            width: 865px; 
+            width: 885px; 
             height: 100%;
             background-color: #163b8b;    
             
@@ -137,13 +143,21 @@
             
         }
         table {            
-            width: 619px;  
-            border:hidden;  
-            border-spacing: 0;          
+            width: 639px;  
+            max-width: 639px;
+            border:hidden;
+            border-color:white;
+            border-spacing: 0;   
+            font-size: small;  
         }
         td {
             text-align: right;
             word-break: break-word;
+            padding-right:5px;
+        }
+        td:nth-child(5), td:nth-child(6) {
+            word-break: inherit;
+            overflow: hidden;
         }
         tr:nth-child(odd) { background-color:white;
                             color: #163b8b;
@@ -154,12 +168,12 @@
         th:last-child {            
             -webkit-border-top-right-radius: 10px;            
             -moz-border-radius-topright: 10px;            
-            border-top-right-radius: 10px;           
+            border-top-right-radius: 10px;   
         }
-        td:last-child {            
+        tr:last-child td:last-child {            
             -webkit-border-bottom-right-radius: 10px;            
             -moz-border-radius-bottomright: 10px;           
-            border-bottom-right-radius: 10px;
+            border-bottom-right-radius: 10px;   
         }
     </style>
 
@@ -173,7 +187,7 @@
             </div>
             <div>
                 <p id="curSession">
-                    Currently {{Origin.raceType}}ing on {{getCurrentTrack()}}                    
+                    {{getCurSession()}}                                      
                 </p>
             </div>
             <table>
